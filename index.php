@@ -1,8 +1,24 @@
 <?php
 include 'db.php';
 
-// Actualizar actor si se envió el formulario
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// ========================
+// CREAR NUEVO ACTOR
+// ========================
+if (isset($_POST['create'])) {
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+
+    $stmt = $conn->prepare("INSERT INTO actor (first_name, last_name) VALUES (?, ?)");
+    $stmt->bind_param("ss", $first_name, $last_name);
+    $stmt->execute();
+    $stmt->close();
+    echo "<p>Actor creado ✅</p>";
+}
+
+// ========================
+// ACTUALIZAR ACTOR
+// ========================
+if (isset($_POST['update'])) {
     $actor_id = $_POST['actor_id'];
     $first_name = $_POST['first_name'];
     $last_name = $_POST['last_name'];
@@ -14,7 +30,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo "<p>Actor actualizado ✅</p>";
 }
 
-// Obtener todos los actores
+// ========================
+// ELIMINAR ACTOR
+// ========================
+if (isset($_POST['delete'])) {
+    $actor_id = $_POST['actor_id'];
+
+    $stmt = $conn->prepare("DELETE FROM actor WHERE actor_id = ?");
+    $stmt->bind_param("i", $actor_id);
+    $stmt->execute();
+    $stmt->close();
+    echo "<p>Actor eliminado ✅</p>";
+}
+
+// ========================
+// LEER ACTORES
+// ========================
 $result = $conn->query("SELECT actor_id, first_name, last_name FROM actor");
 ?>
 
@@ -22,7 +53,7 @@ $result = $conn->query("SELECT actor_id, first_name, last_name FROM actor");
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Actores Sakila</title>
+    <title>CRUD Actores Sakila</title>
 </head>
 <body>
     <h1>Tabla de Actores</h1>
@@ -42,12 +73,25 @@ $result = $conn->query("SELECT actor_id, first_name, last_name FROM actor");
         <?php endwhile; ?>
     </table>
 
+    <h2>Crear Actor</h2>
+    <form method="POST" action="">
+        <input type="text" name="first_name" placeholder="Nombre" required>
+        <input type="text" name="last_name" placeholder="Apellido" required>
+        <button type="submit" name="create">Crear</button>
+    </form>
+
     <h2>Actualizar Actor</h2>
     <form method="POST" action="">
         <input type="number" name="actor_id" placeholder="ID Actor" required>
         <input type="text" name="first_name" placeholder="Nombre" required>
         <input type="text" name="last_name" placeholder="Apellido" required>
-        <button type="submit">Actualizar</button>
+        <button type="submit" name="update">Actualizar</button>
+    </form>
+
+    <h2>Eliminar Actor</h2>
+    <form method="POST" action="">
+        <input type="number" name="actor_id" placeholder="ID Actor" required>
+        <button type="submit" name="delete">Eliminar</button>
     </form>
 </body>
 </html>
